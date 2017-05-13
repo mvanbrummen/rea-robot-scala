@@ -3,8 +3,6 @@ object ToyRobotSimulation {
     val PROMPT = "> "
     var running = true
 
-    // val board = (p: Point, min: Point, max: Point) => (p.x > min.x && p.y > min.y) && (p.x < max.x && p.y < max.y)
-
     while(running) {
       print(PROMPT)
       scala.io.StdIn.readLine() match {
