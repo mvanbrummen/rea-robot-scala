@@ -1,35 +1,4 @@
-// sealed trait Direction {
-//   def productPrefix: String
-// }
-// case object North extends Direction
-// case object East extends Direction
-// case object South extends Direction
-// case object West extends Direction
-
-object Direction extends Enumeration {
-  type Direction = Value
-  val North, East, South, West = Value
-}
-
-case class Point(val x: Int, val y: Int)
-
-abstract sealed class Robot
-case class PlacedRobot(val position: Point, val facing: Direction) extends Robot
-case class UnplacedRobot() extends Robot
-
-object PlaceCommand {
-  def unapply(s: String): Option[(Point, Direction)] = s match {
-    case r"^PLACE \d+\,\d+\,(NORTH|EAST|SOUTH|WEST)$" => {
-      val tokens = s.replace("PLACE ", "").split(",")
-      Some(Point(tokens(0).toInt, tokens(1).toInt), )
-    }
-    case _ => None
-  }
-}
-
-object ReaRobot {
-  var robot: Robot = PlacedRobot(Point(0,0), North)
-
+object ToyRobotSimulation {
   def main(args: Array[String]) = {
     val PROMPT = "> "
     var running = true
@@ -50,12 +19,43 @@ object ReaRobot {
     }
   }
 
-  def place(position: Point, facing: Direction) = {
+  object Direction extends Enumeration {
+    type Direction = Value
+    val North, East, South, West = Value
+  }
+  import Direction._
 
+  case class Point(val x: Int, val y: Int)
+
+  trait Surface {
+    def withinBounds(p: Point): Boolean
+  }
+  case class Table(val min: Point, val max: Point) extends Surface {
+    def withinBounds(p: Point): Boolean = (min.y to max.y contains p.y) && (min.x to max.x contains p.x)
   }
 
+  abstract sealed class Robot
+  case class PlacedRobot(val position: Point, val facing: Direction) extends Robot
+  case class UnplacedRobot() extends Robot
+
+  object PlaceCommand {
+    implicit class Regex(sc: StringContext) {
+      def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
+    }
+
+    def unapply(s: String): Option[(Point, Direction)] = s match {
+      case r"PLACE (\d+)${x}\,(\d+)${y}\,(North|East|South|West)${direction}" => Some(Point(x.toInt, y.toInt), Direction withName direction)
+      case _ => None
+    }
+  }
+
+  var robot: Robot = PlacedRobot(Point(0,0), North)
+  val table: Surface = Table(Point(0, 0), Point(4, 4))
+
+  def place(position: Point, facing: Direction) = if (table.withinBounds(position)) robot = PlacedRobot(position, facing)
+
   def report() = robot match {
-    case PlacedRobot(position, facing) => println(s"${position.x},${position.y},${facing.productPrefix}")
+    case PlacedRobot(position, facing) => println(s"${position.x},${position.y},${facing.toString()}")
     case UnplacedRobot() => // remain silent
   }
 
