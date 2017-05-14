@@ -4,7 +4,8 @@ abstract sealed class Robot
 case class PlacedRobot(val position: Point, val facing: Direction) extends Robot
 case class UnplacedRobot() extends Robot
 
-class ToyRobotSimulation(var robot: Robot, val table: Surface) {
+class ToyRobotSimulation(val table: Surface) {
+  var robot: Robot = UnplacedRobot()
   var running = true
 
   def run() = {
