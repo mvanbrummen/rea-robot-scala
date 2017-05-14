@@ -45,7 +45,7 @@ class ToyRobotSimulation(var robot: Robot, val table: Surface) {
     robot
   }
 
-  def place(position: Point, facing: Direction) = if (table.withinBounds(position)) PlacedRobot(position, facing) else UnplacedRobot()
+  def place(position: Point, facing: Direction) = if (table withinBounds position) PlacedRobot(position, facing) else UnplacedRobot()
 
   def report() = {
     robot match {
